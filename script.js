@@ -1,40 +1,46 @@
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('goalForm');
-    const input = document.getElementById('goalInput');
-    const ul = document.getElementById('goalList');
-  
-    form.addEventListener('submit', function(event) {
-      event.preventDefault();
-      const goalText = input.value.trim();
-      if (goalText !== '') {
-        const li = document.createElement('li');
-        li.textContent = goalText;
-        ul.appendChild(li);
-        input.value = '';
-        saveGoal(goalText);
-      } else {
-        alert('Por favor, escribe una meta válida.');
-      }
-    });
-  
-    // Cargar metas guardadas al cargar la página
-    loadGoals();
-  
-    function saveGoal(goal) {
-      // Guardar la meta en el almacenamiento local del navegador
-      let goals = JSON.parse(localStorage.getItem('goals')) || [];
-      goals.push(goal);
-      localStorage.setItem('goals', JSON.stringify(goals));
-    }
-  
-    function loadGoals() {
-      // Cargar metas guardadas del almacenamiento local del navegador
-      let goals = JSON.parse(localStorage.getItem('goals')) || [];
-      goals.forEach(function(goal) {
-        const li = document.createElement('li');
-        li.textContent = goal;
-        ul.appendChild(li);
-      });
-    }
-  });
-  
+let ahorros = JSON.parse(localStorage.getItem('ahorros')) || {};
+
+function guardarAhorro() {
+  const selectedDay = document.getElementById('daySelect').value;
+  const amount = parseInt(document.getElementById('amount').value);
+  if (!ahorros[selectedDay]) {
+    ahorros[selectedDay] = 0;
+  }
+  ahorros[selectedDay] += amount;
+  actualizarLocalStorage();
+  document.getElementById('amount').value = '';
+}
+
+function verTotal() {
+  mostrarAhorros();
+}
+
+function eliminarTodo() {
+  ahorros = {};
+  actualizarLocalStorage();
+  mostrarAhorros();
+}
+
+function actualizarLocalStorage() {
+  localStorage.setItem('ahorros', JSON.stringify(ahorros));
+}
+
+function mostrarAhorros() {
+  const ahorroList = document.getElementById('ahorroList');
+  ahorroList.innerHTML = '';
+  let total = 0;
+  for (const day in ahorros) {
+    const amount = ahorros[day];
+    total += amount;
+    const listItem = document.createElement('li');
+    listItem.textContent = `${day}: $${amount}`;
+    ahorroList.appendChild(listItem);
+  }
+  document.getElementById('totalAmount').textContent = `Total Ahorrado: $${total}`;
+}
+
+function ocultarAhorros() {
+  document.getElementById('totalAmount').style.display = 'none';
+}
+
+ocultarAhorros(); // Ocultar el acumulado al inicio
